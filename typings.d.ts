@@ -22,3 +22,16 @@ type StudentColumn = {
     header: string
     accessor: string
 };
+
+type Marking = {
+    id: number,
+    subject: string,
+    score: number
+}
+
+type MarkingResponse = {
+    markings: Marking[]
+    mean: {
+        [key: string]: number
+    }
+}

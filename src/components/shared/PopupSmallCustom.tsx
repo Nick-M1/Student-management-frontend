@@ -14,7 +14,7 @@ type Props = {
     IconImg: React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement> & { title?: string, titleId?: string }>
 }
 
-export default function PopupCustom({ modal, setModal, confirmHandler, titleText, descriptionText, buttonText, IconImg }: Props) {
+export default function PopupSmallCustom({ modal, setModal, confirmHandler, titleText, descriptionText, buttonText, IconImg }: Props) {
     const cancelButtonRef = useRef(null);
 
     return (
