@@ -18,14 +18,14 @@ type StudentRequest = {
     // year: string
 };
 
-type StudentColumn = {
+type TableColumn = {
     header: string
     accessor: string
 };
 
 type Marking = {
     id: number,
-    subject: string,
+    course: Course,
     score: number
 }
 
@@ -34,4 +34,10 @@ type MarkingResponse = {
     mean: {
         [key: string]: number
     }
+}
+
+type Course = {
+    id: number
+    code: string
+    title: string
 }

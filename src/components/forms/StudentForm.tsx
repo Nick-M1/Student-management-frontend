@@ -3,24 +3,31 @@ import DateSelector from "../shared/DateSelector";
 import dateFormatter from "../../utils/time-formatter";
 import toast from "react-hot-toast";
 import {toastOptionsCustom} from "../../utils/toast-options-custom";
-import SubjectSelector from "../filters/SubjectSelector";
+import SubjectSelector from "../headlessui/SubjectSelector";
 import getAllPossibleSubjects from "../../DB/getAllPossibleSubjects";
 import {DEFAULT_PROFILE_IMAGE} from "../../constants/assets-constants";
-import PopupLargeCustom from "../shared/PopupLargeCustom";
+import PopupLargeCustom from "../headlessui/PopupLargeCustom";
+
 
 type Props = {
-    open: boolean
-    setClose: () => void
-
-    studentToEdit: Student | null
-    setPopupStudentFormStudent: Dispatch<SetStateAction<Student | null>> | null
-
-    setRecentlyUpdatedStudent: Dispatch<SetStateAction<number | null>> | null
+    open: boolean,
+    setClose: () => void,
+    itemName: string,
+    itemToEdit: Student | null,
+    setItemToEdit: (item: Student | null) => void,
+    setRecentlyUpdatedItem: (index: number) => void,
 }
 
+export default function StudentForm({
+   open,
+   setClose,
+   itemName,
+   itemToEdit,
+   setItemToEdit,
+   setRecentlyUpdatedItem
+}: Props) {
 
-export default function PopupStudentForm({ open, setClose, studentToEdit, setPopupStudentFormStudent, setRecentlyUpdatedStudent }: Props) {
-    const isEdit = studentToEdit != null
+    const isEdit = itemToEdit != null
 
     const [studentName, setStudentName] = useState('')
     const [studentEmail, setStudentEmail] = useState( '')
@@ -31,13 +38,13 @@ export default function PopupStudentForm({ open, setClose, studentToEdit, setPop
 
     // Set or reset state, based on what 'studentToEdit' is
     useEffect(() => {
-        if (studentToEdit != null) {
-            setStudentName(studentToEdit.name)
-            setStudentEmail(studentToEdit.email)
-            setStudentDob(new Date(studentToEdit.dob))
+        if (itemToEdit != null) {
+            setStudentName(itemToEdit.name)
+            setStudentEmail(itemToEdit.email)
+            setStudentDob(new Date(itemToEdit.dob))
             // setStudentYear(studentToEdit.year)
-            setStudentSubjects(studentToEdit.subjects)
-            setStudentImage(studentToEdit.image)
+            setStudentSubjects(itemToEdit.subjects)
+            setStudentImage(itemToEdit.image)
         } else {
             setStudentName('')
             setStudentEmail('')
@@ -46,7 +53,7 @@ export default function PopupStudentForm({ open, setClose, studentToEdit, setPop
             setStudentSubjects([] as string[])
             setStudentImage('')
         }
-    }, [studentToEdit])
+    }, [itemToEdit])
 
 
     // POST - Add new student to DB
@@ -86,7 +93,7 @@ export default function PopupStudentForm({ open, setClose, studentToEdit, setPop
         studentSubjects.forEach(subject => urlSearchParams.append('subjects', subject))
 
         return fetch(
-            `http://localhost:8080/api/v1/student/${studentToEdit?.id}?${urlSearchParams}`,
+            `http://localhost:8080/api/v1/student/${itemToEdit?.id}?${urlSearchParams}`,
             {
                 method: 'PUT',
                 headers: {
@@ -118,11 +125,11 @@ export default function PopupStudentForm({ open, setClose, studentToEdit, setPop
         toast.success('Uploaded student successfully', { id: 'post/put student' })
 
         setClose()
-        if (setRecentlyUpdatedStudent !== null)
-            setRecentlyUpdatedStudent(newStudentId)
+        if (setRecentlyUpdatedItem !== null)
+            setRecentlyUpdatedItem(newStudentId)
 
-        if (setPopupStudentFormStudent !== null)
-            setPopupStudentFormStudent(null)
+        if (setItemToEdit !== null)
+            setItemToEdit(null)
 
         setTimeout(() => {
             setStudentName('')
@@ -135,7 +142,7 @@ export default function PopupStudentForm({ open, setClose, studentToEdit, setPop
     }
 
     return (
-        <PopupLargeCustom open={open} setOpen={setClose} title={`${isEdit ? 'Edit' : 'Add new'} student 👨🏻‍🎓`}>
+        <PopupLargeCustom open={open} setOpen={setClose} title={`${isEdit ? 'Edit' : 'Add new'} ${itemName} 👨🏻‍🎓`}>
             <section className='space-y-5 py-4'>
                 <div className="">
                     <div>

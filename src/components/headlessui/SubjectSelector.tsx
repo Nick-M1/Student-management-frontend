@@ -21,7 +21,7 @@ export default function SubjectSelector({ allPossibleLabels, selectedLabels, set
                         <span className="inline-block w-full rounded-md">
                             <Listbox.Button
                                 className='relative w-full cursor-default py-2.5 pl-2 pr-10 text-left text-sm leading-5 smooth-transition input-primary bg-white'>
-                                <span className="block flex flex-wrap gap-2 ">
+                                <span className="flex flex-wrap gap-2 ">
                                     { selectedLabels.length === 0
                                         ? <span className='px-0.5 pl-1 text-base text-gray-500'>Empty</span>
                                         : ( selectedLabels.map((label) => (

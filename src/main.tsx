@@ -8,8 +8,11 @@ import ErrorPage from "./pages/ErrorPage";
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<Layout/>} errorElement={<ErrorPage/>}>
-            <Route index lazy={() => import("./routes/TableRoute")} />
-            <Route path='/student/:studentId' lazy={() => import("./routes/StudentDetailedRoute")} />
+            <Route index lazy={() => import("./routes/HomeRoute")} />
+            <Route path='/courses' lazy={() => import('./routes/CoursesRoute')}/>
+
+            <Route path='/students' lazy={() => import("./routes/StudentsAllRoute")} />
+            <Route path='/students/:studentId' lazy={() => import("./routes/StudentDetailedRoute")} />
         </Route>
     )
 )
