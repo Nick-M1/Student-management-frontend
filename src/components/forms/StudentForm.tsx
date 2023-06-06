@@ -142,7 +142,7 @@ export default function StudentForm({
             setStudentImage('')
         }, 200)
     }
-console.log(studentYeargroup)
+
     return (
         <PopupLargeCustom open={open} setOpen={setClose} title={`${isEdit ? 'Edit' : 'Add new'} ${itemName} 👨🏻‍🎓`}>
             <section className='space-y-5 py-4'>
