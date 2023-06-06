@@ -1,10 +1,10 @@
-export default async function getAllStudentsByQuery(
+export default async function getMarkingPage(
+    studentId: string | number,
     sortingAcs: boolean,
     sortingOrderby: string,
     sortingTextsearch: string,
     pageNumber: number,
-    selectedOptions: string[]
-): Promise<Pageable<Student>> {
+): Promise<Pageable<Marking>> {         // MarkingResponse
 
     const urlParams = new URLSearchParams({
         searchBy: sortingTextsearch,
@@ -13,12 +13,9 @@ export default async function getAllStudentsByQuery(
         'page': pageNumber.toString()
     });
 
-    selectedOptions.forEach(i => urlParams.append('subjects', i));
-
-    return await fetch(`http://localhost:8080/api/v1/student?${urlParams}`)
+    return await fetch(`http://localhost:8080/api/v1/marking/${studentId}?${urlParams}`)     // '/statistics'
         .then(
-            res => res.json(),
+            r => r.json(),
             () => []
         )
 }
-

@@ -8,6 +8,10 @@ export const tableColumnsStudentDetailed: TableColumn[] = [
         accessor: "course",
     },
     {
+        header: "Title",
+        accessor: "title",
+    },
+    {
         header: "Score",
         accessor: "score",
     },

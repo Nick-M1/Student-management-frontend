@@ -7,44 +7,45 @@ import CourseForm from "../components/forms/CourseForm";
 import CoursesRowComponent from "../components/row-component/CoursesRowComponent";
 import deleteCourse from "../DB/deleteCourse";
 import getStudentById from "../DB/getStudentById";
-import getMarking from "../DB/getMarking";
+import getMarkingPage from "../DB/getMarkingPage";
 import MarkingForm from "../components/forms/MarkingForm";
 import MarkingsRowComponent from "../components/row-component/MarkingsRowComponent";
 import deleteMarking from "../DB/deleteMarking";
 import StudentDetailedHeader from "../components/student/StudentDetailedHeader";
 import {tableColumnsStudentDetailed} from "../constants/table-columns-student-detailed";
 import usePopupForm from "../hooks/usePopupForm";
+import {defaultQueryParams} from "../constants/default-query-params";
+import usePagination from "../hooks/usePagination";
+import getMarkingStatistics from "../DB/getMarkingStatistics";
 
 export async function loader({params}: { params: any }) {
     const { studentId } = params
 
     const studentLoader = await getStudentById(studentId)
-        .then(r => {
-            if (r === null)
-                throw new Error(`Student not found with id ${studentId}`)
-
-            return r
-    })
-
     const subjectsLoader = await getAllSubjects()
-    const markingsResponseLoader = await getMarking(studentId)
 
-    return { studentLoader, subjectsLoader, markingsResponseLoader }
+    const markingsPageLoader = await getMarkingPage(studentId, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber)
+    const markingStatisticsLoader = await getMarkingStatistics(studentId)
+
+    return { studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader }
 }
 
 
 export function Component() {
-    const { studentLoader, subjectsLoader, markingsResponseLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
-    const [allMarkings, setAllMarkings] = useState(markingsResponseLoader.markings)
+    const [allMarkings, setAllMarkings] = useState(markingsPageLoader)
+    const [markingStatistics, setMarkingStatistics] = useState(markingStatisticsLoader)
     const [allSubjects, setAllSubjects] = useState(subjectsLoader)
 
     // Querying for DB
     const [sortingAsc, setSortingAsc] = useState(true)
     const [sortingOrderby, setSortingOrderby] = useState('id')
     const [sortingTextsearch, setSortingTextsearch] = useState('')
-    const [selectedSubjects, setSelectedSubjects] = useState([] as string[])
+    const [selectedOptions, setSelectedOptions] = useState([] as string[])
+
+    const [pagenumber, nextPageNavigate, previousPageNavigate] = usePagination()
 
     // For updates from client to db
     const [recentlyUpdatedItem, setRecentlyUpdatedItem] = useState<number | null>(null)
@@ -61,10 +62,14 @@ export function Component() {
 
 
     useEffect(() => {
-        getMarking(studentLoader.id)
-            .then(markingsResponse => setAllMarkings(markingsResponse.markings))
+        getMarkingPage(studentLoader.id, sortingAsc, sortingOrderby, sortingTextsearch, pagenumber)
+            .then(markingsResponse => setAllMarkings(markingsResponse))
+    }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions])
 
-    }, [sortingAsc, sortingOrderby, sortingTextsearch, selectedSubjects])
+    useEffect(() => {
+        getMarkingStatistics(studentLoader.id)
+            .then(stats => setMarkingStatistics(stats))
+    }, [recentlyUpdatedItem])
 
     useEffect(() => {
         if (recentlyUpdatedItem === null)
@@ -73,7 +78,7 @@ export function Component() {
         getAllSubjects()
             .then(subjects => {
                 setAllSubjects(subjects)
-                setSelectedSubjects(subjects)
+                setSelectedOptions(subjects)
             })
 
         setTimeout(() => setRecentlyUpdatedItem(null), 400)
@@ -83,7 +88,7 @@ export function Component() {
         <div>
             <StudentDetailedHeader
                 student={studentLoader}
-                means={markingsResponseLoader.mean}
+                means={markingStatistics}
             />
 
             <TablePage
@@ -103,6 +108,7 @@ export function Component() {
                         itemToEdit={popupFormItem}
                         setItemToEdit={setPopupFormItem}
                         setRecentlyUpdatedItem={setRecentlyUpdatedItem}
+
                         studentId={studentLoader.id}
                     />
                 }
@@ -118,8 +124,11 @@ export function Component() {
                 setSortingOrderby={setSortingOrderby}
                 sortingTextsearch={sortingTextsearch}
                 setSortingTextsearch={setSortingTextsearch}
-                selectedFilterOptions={selectedSubjects}
-                setSelectedFilterOptions={setSelectedSubjects}
+                selectedFilterOptions={selectedOptions}
+                setSelectedFilterOptions={setSelectedOptions}
+
+                nextPageNavigate={nextPageNavigate}
+                previousPageNavigate={previousPageNavigate}
             />
         </div>
     )

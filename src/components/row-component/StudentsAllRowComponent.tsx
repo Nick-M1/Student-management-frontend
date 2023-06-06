@@ -20,6 +20,9 @@ export default function StudentsAllRowComponent(item: Student) {
                 {item.dob}
             </td>
             <td className="px-6 py-4">
+                Year {item.yeargroup}
+            </td>
+            <td className="px-6 py-4">
                 <ColoredListDisplay items={item.subjects}/>
             </td>
         </>

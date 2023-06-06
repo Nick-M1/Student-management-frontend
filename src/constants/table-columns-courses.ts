@@ -4,6 +4,10 @@ export const tableColumnsCourses: TableColumn[] = [
         accessor: "id",
     },
     {
+        header: "Department",
+        accessor: "code",
+    },
+    {
         header: "Code",
         accessor: "code",
     },

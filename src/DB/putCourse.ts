@@ -1,6 +1,6 @@
-export default async function putCourse(courseId: number, code: string, title: string) {
+export default async function putCourse(courseId: number, code: string, title: string, department: string) {
     const urlSearchParams = new URLSearchParams({
-        code, title
+        code, title, department
     });
 
     return await fetch(

@@ -11,7 +11,7 @@ type Props<T> = {
     displayOption: (item: T | undefined) => string
 }
 
-export default function DropdownCustom<T extends HasId>({ options, selected, setSelected, displayOption }: Props<T>) {
+export default function DropdownCustom<T>({ options, selected, setSelected, displayOption }: Props<T>) {
 
     return (
         <div className="">
@@ -32,10 +32,10 @@ export default function DropdownCustom<T extends HasId>({ options, selected, set
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                            {options.map((option) => (
+                        <Listbox.Options className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            {options.map((option, index) => (
                                 <Listbox.Option
-                                    key={option.id}
+                                    key={index}
                                     className={({ active }) =>
                                         `relative cursor-pointer select-none py-2 pl-10 pr-4 smooth-transition ${
                                             active ? 'bg-indigo-100 text-indigo-900' : 'text-gray-900'

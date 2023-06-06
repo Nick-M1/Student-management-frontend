@@ -16,6 +16,10 @@ export const tableColumnsStudentsAll: TableColumn[] = [
         accessor: "dob",
     },
     {
+        header: "Year Group",
+        accessor: "yeargroup",
+    },
+    {
         header: "Subjects",
         accessor: "subject",
     },

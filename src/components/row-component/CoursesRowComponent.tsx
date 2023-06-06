@@ -14,14 +14,15 @@ export default function CoursesRowComponent(item: Course) {
             {/*    </Link>*/}
             {/*</td>*/}
             <td className="px-6 py-4">
+                <ColoredListDisplay items={[item.department]}/>
+            </td>
+            <td className="px-6 py-4">
                 {item.code}
             </td>
             <td className="px-6 py-4">
                 {item.title}
             </td>
-            {/*<td className="px-6 py-4">*/}
-            {/*    <ColoredListDisplay items={item.subjects}/>*/}
-            {/*</td>*/}
+
         </>
     )
 }

@@ -13,7 +13,7 @@ type Props<T> = {
     itemName: string
     columns: TableColumn[]
 
-    data: T[]
+    data: Pageable<T>
     filterPossibleOptions: string[]
 
     recentlyUpdatedItem: number | null
@@ -37,18 +37,15 @@ type Props<T> = {
     selectedFilterOptions: string[]
     setSelectedFilterOptions: Dispatch<SetStateAction<string[]>>
 
-    totalNumberOfItems: number
-    pagenumber: number
     nextPageNavigate: () => void
     previousPageNavigate: () => void
 }
 
 export default function TablePage<T extends HasId>({ itemName, columns, data, filterPossibleOptions, recentlyUpdatedItem, setRecentlyUpdatedItem,
                                                        PopupForm, setPopupFormOpen, setPopupFormItem, displayRowGenerator, onDelete, sortingAsc, setSortingAsc, sortingOrderby,
-                                                       setSortingOrderby, sortingTextsearch, setSortingTextsearch, selectedFilterOptions, setSelectedFilterOptions, totalNumberOfItems,
-                                                       pagenumber, nextPageNavigate, previousPageNavigate }: Props<T>) {
+                                                       setSortingOrderby, sortingTextsearch, setSortingTextsearch, selectedFilterOptions, setSelectedFilterOptions,
+                                                       nextPageNavigate, previousPageNavigate }: Props<T>) {
 
-    const numberOfItemsFound = useMemo(() => data.length, [data])
 
     return (
         <>
@@ -80,7 +77,7 @@ export default function TablePage<T extends HasId>({ itemName, columns, data, fi
                     <TableCustom
                         itemName={itemName}
                         columns={columns}
-                        rowData={data}
+                        rowData={data.content}
                         displaySingleRow={displayRowGenerator}
 
                         recentlyUpdatedItem={recentlyUpdatedItem}
@@ -100,9 +97,12 @@ export default function TablePage<T extends HasId>({ itemName, columns, data, fi
                 </div>
 
                 <PaginationButtons
-                    totalNumberOfItems={totalNumberOfItems}
-                    numberOfItemsFound={numberOfItemsFound}
-                    pagenumber={pagenumber}
+                    numberOfElements={data.numberOfElements}
+                    offset={data.pageable.offset}
+                    totalElements={data.totalElements}
+
+                    first={data.first}
+                    last={data.last}
                     nextPage={nextPageNavigate}
                     prevPage={previousPageNavigate}
                 />

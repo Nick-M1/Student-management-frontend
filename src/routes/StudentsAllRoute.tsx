@@ -6,43 +6,36 @@ import StudentForm from "../components/forms/StudentForm";
 import StudentsAllRowComponent from "../components/row-component/StudentsAllRowComponent";
 import deleteStudent from "../DB/deleteStudent";
 import {tableColumnsStudentsAll} from "../constants/table-columns-students-all";
-import getAllCourses from "../DB/getAllCourses";
+import getAllCourses from "../DB/getAllCoursesByQuery";
 import {useLoaderData} from "react-router-dom";
 import usePopupForm from "../hooks/usePopupForm";
 import CourseForm from "../components/forms/CourseForm";
 import usePagination from "../hooks/usePagination";
 import getCountStudentsByQuery from "../DB/getCountStudentsByQuery";
+import {defaultQueryParams} from "../constants/default-query-params";
 
 
-const defaultQuery = {
-    asc: true,
-    orderby: 'id',
-    textsearch: '',
-    pagenumber: 0,
-    selectedSubjects: [] as string[]
-}
+
 
 export async function loader() {
     const subjectsLoader = await getAllSubjects()
-    const studentsLoader = await getAllStudentsByQuery(defaultQuery.asc, defaultQuery.orderby, defaultQuery.textsearch, defaultQuery.pagenumber, subjectsLoader)
-    const numberOfStudentsLoader = await getCountStudentsByQuery(defaultQuery.textsearch, subjectsLoader)
+    const studentsLoader = await getAllStudentsByQuery(defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, subjectsLoader)
 
-    return { studentsLoader, subjectsLoader, numberOfStudentsLoader }
+    return { studentsLoader, subjectsLoader }
 }
 
 export function Component() {
-    const { studentsLoader, subjectsLoader, numberOfStudentsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { studentsLoader, subjectsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
     const [students, setStudents] = useState(studentsLoader)
-    const [studentsCount, setStudentsCount] = useState(numberOfStudentsLoader)
     const [allSubjects, setAllSubjects] = useState(subjectsLoader)
 
     // Querying for DB
-    const [sortingAsc, setSortingAsc] = useState(defaultQuery.asc)
-    const [sortingOrderby, setSortingOrderby] = useState(defaultQuery.orderby)
-    const [sortingTextsearch, setSortingTextsearch] = useState(defaultQuery.textsearch)
-    const [selectedSubjects, setSelectedSubjects] = useState(subjectsLoader)
+    const [sortingAsc, setSortingAsc] = useState(defaultQueryParams.asc)
+    const [sortingOrderby, setSortingOrderby] = useState(defaultQueryParams.orderby)
+    const [sortingTextsearch, setSortingTextsearch] = useState(defaultQueryParams.textsearch)
+    const [selectedOptions, setSelectedOptions] = useState(subjectsLoader)
 
     const [pagenumber, nextPageNavigate, previousPageNavigate] = usePagination()
 
@@ -60,13 +53,9 @@ export function Component() {
 
 
     useEffect(() => {
-        getAllStudentsByQuery(sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedSubjects)
+        getAllStudentsByQuery(sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions)
             .then(students => setStudents(students))
-
-        getCountStudentsByQuery(sortingTextsearch, selectedSubjects)
-            .then(count => setStudentsCount(count))
-
-    }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedSubjects])
+    }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions])
 
     useEffect(() => {
         if (recentlyUpdatedItem === null)
@@ -75,7 +64,7 @@ export function Component() {
         getAllSubjects()
             .then(subjects => {
                 setAllSubjects(subjects)
-                setSelectedSubjects(subjects)
+                setSelectedOptions(subjects)
             })
 
         setTimeout(() => setRecentlyUpdatedItem(null), 400)
@@ -118,11 +107,9 @@ export function Component() {
             setSortingOrderby={setSortingOrderby}
             sortingTextsearch={sortingTextsearch}
             setSortingTextsearch={setSortingTextsearch}
-            selectedFilterOptions={selectedSubjects}
-            setSelectedFilterOptions={setSelectedSubjects}
+            selectedFilterOptions={selectedOptions}
+            setSelectedFilterOptions={setSelectedOptions}
 
-            totalNumberOfItems={studentsCount}
-            pagenumber={pagenumber}
             nextPageNavigate={nextPageNavigate}
             previousPageNavigate={previousPageNavigate}
         />

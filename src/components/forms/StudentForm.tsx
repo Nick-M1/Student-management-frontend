@@ -7,6 +7,8 @@ import SubjectSelector from "../headlessui/SubjectSelector";
 import getAllPossibleSubjects from "../../DB/getAllPossibleSubjects";
 import {DEFAULT_PROFILE_IMAGE} from "../../constants/assets-constants";
 import PopupLargeCustom from "../headlessui/PopupLargeCustom";
+import {ALL_YEARGROUPS, YeargroupEnum} from "../../constants/yeargroup-enum";
+import DropdownCustom from "../headlessui/DropdownCustom";
 
 
 type Props = {
@@ -32,7 +34,7 @@ export default function StudentForm({
     const [studentName, setStudentName] = useState('')
     const [studentEmail, setStudentEmail] = useState( '')
     const [studentDob, setStudentDob] = useState<Date>(new Date())
-    // const [studentYear, setStudentYear] = useState( getAllPossibleYears()[0])
+    const [studentYeargroup, setStudentYeargroup] = useState( YeargroupEnum.YEAR_1 )
     const [studentSubjects, setStudentSubjects] = useState( [] as string[])
     const [studentImage, setStudentImage] = useState( '')
 
@@ -42,14 +44,14 @@ export default function StudentForm({
             setStudentName(itemToEdit.name)
             setStudentEmail(itemToEdit.email)
             setStudentDob(new Date(itemToEdit.dob))
-            // setStudentYear(studentToEdit.year)
+            setStudentYeargroup(itemToEdit.yeargroup)
             setStudentSubjects(itemToEdit.subjects)
             setStudentImage(itemToEdit.image)
         } else {
             setStudentName('')
             setStudentEmail('')
             setStudentDob(new Date())
-            // setStudentYear(getAllPossibleYears()[0])
+            setStudentYeargroup(YeargroupEnum.YEAR_1)
             setStudentSubjects([] as string[])
             setStudentImage('')
         }
@@ -62,7 +64,7 @@ export default function StudentForm({
             name: studentName,
             email: studentEmail,
             image: studentImage == '' ? DEFAULT_PROFILE_IMAGE : studentImage,
-            // year: studentYear,
+            yeargroup: studentYeargroup.toString().at(-1) || 0,
             dob: dateFormatter(studentDob),
             subjects: studentSubjects
         }
@@ -86,7 +88,7 @@ export default function StudentForm({
             name: studentName,
             email: studentEmail,
             image: studentImage == '' ? DEFAULT_PROFILE_IMAGE : studentImage,
-            // year: studentYear,
+            yeargroup: studentYeargroup.toString().at(-1) || '0',
             dob: dateFormatter(studentDob),
         });
 
@@ -140,7 +142,7 @@ export default function StudentForm({
             setStudentImage('')
         }, 200)
     }
-
+console.log(studentYeargroup)
     return (
         <PopupLargeCustom open={open} setOpen={setClose} title={`${isEdit ? 'Edit' : 'Add new'} ${itemName} 👨🏻‍🎓`}>
             <section className='space-y-5 py-4'>
@@ -176,12 +178,12 @@ export default function StudentForm({
                         />
                     </div>
                 </div>
-                {/*<div className=''>*/}
-                {/*    <h1 className='leading-6 font-medium text-gray-900 mb-0.5'>*/}
-                {/*        Student's Year Group*/}
-                {/*    </h1>*/}
-                {/*    <LabelSelectorSingle allPossibleLabels={getAllPossibleYears()} selectedLabel={studentYear} setSelectedLabel={setStudentYear}/>*/}
-                {/*</div>*/}
+                <div className=''>
+                    <h1 className='leading-6 font-medium text-gray-900 mb-0.5'>
+                        Student's Year Group
+                    </h1>
+                    <DropdownCustom options={ALL_YEARGROUPS} selected={studentYeargroup} setSelected={setStudentYeargroup} displayOption={(option) => typeof option === 'undefined' ? '' : `Year ${option.toString().at(-1)}`}/>
+                </div>
                 <div className=''>
                     <h1 className='leading-6 font-medium text-gray-900 mb-0.5'>
                         Student's Subjects

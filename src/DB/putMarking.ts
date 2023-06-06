@@ -1,6 +1,6 @@
-export default async function putMarking(markingId: number, score: string) {
+export default async function putMarking(markingId: number, title: string, score: string) {
     const urlSearchParams = new URLSearchParams({
-        score
+        title, score
     });
 
     return await fetch(

@@ -1,34 +1,39 @@
 import {useLoaderData} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import getAllSubjects from "../DB/getAllSubjects";
 import TablePage from "../components/generic-components/TablePage";
-import getAllCourses from "../DB/getAllCourses";
+import getAllCourses from "../DB/getAllCoursesByQuery";
 import deleteCourse from "../DB/deleteCourse";
 import CoursesRowComponent from "../components/row-component/CoursesRowComponent";
 import CourseForm from "../components/forms/CourseForm";
 import {tableColumnsCourses} from "../constants/table-columns-courses";
 import usePopupForm from "../hooks/usePopupForm";
+import {defaultQueryParams} from "../constants/default-query-params";
+import usePagination from "../hooks/usePagination";
+import getAllDepartments from "../DB/getAllDepartments";
+import getAllCoursesByQuery from "../DB/getAllCoursesByQuery";
 
 export async function loader() {
-    const subjectsLoader = await getAllSubjects()
-    const coursesLoader = await getAllCourses()
+    const departmentsLoader = await getAllDepartments()
+    const coursesLoader = await getAllCoursesByQuery(defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, departmentsLoader)
 
-    return { subjectsLoader, coursesLoader }
+    return { departmentsLoader, coursesLoader }
 }
 
 
 export function Component() {
-    const { subjectsLoader, coursesLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { departmentsLoader, coursesLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
     const [allCourses, setAllCourses] = useState(coursesLoader)
-    const [allSubjects, setAllSubjects] = useState(subjectsLoader)
+    const [allDepartments, setAllDepartments] = useState(departmentsLoader)
 
     // Querying for DB
-    const [sortingAsc, setSortingAsc] = useState(true)
-    const [sortingOrderby, setSortingOrderby] = useState('id')
-    const [sortingTextsearch, setSortingTextsearch] = useState('')
-    const [selectedSubjects, setSelectedSubjects] = useState([] as string[])
+    const [sortingAsc, setSortingAsc] = useState(defaultQueryParams.asc)
+    const [sortingOrderby, setSortingOrderby] = useState(defaultQueryParams.orderby)
+    const [sortingTextsearch, setSortingTextsearch] = useState(defaultQueryParams.textsearch)
+    const [selectedOptions, setSelectedOptions] = useState(departmentsLoader)
+
+    const [pagenumber, nextPageNavigate, previousPageNavigate] = usePagination()
 
     // For updates from client to db
     const [recentlyUpdatedItem, setRecentlyUpdatedItem] = useState<number | null>(null)
@@ -43,19 +48,18 @@ export function Component() {
     ] = usePopupForm<Course>()
 
     useEffect(() => {
-        getAllCourses()
-            .then(students => setAllCourses(students))
-
-    }, [sortingAsc, sortingOrderby, sortingTextsearch, selectedSubjects])
+        getAllCourses(sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions)
+            .then(courses => setAllCourses(courses))
+    }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions])
 
     useEffect(() => {
         if (recentlyUpdatedItem === null)
             return
 
-        getAllSubjects()
-            .then(subjects => {
-                setAllSubjects(subjects)
-                setSelectedSubjects(subjects)
+        getAllDepartments()
+            .then(departments => {
+                setAllDepartments(departments)
+                setSelectedOptions(departments)
             })
 
         setTimeout(() => setRecentlyUpdatedItem(null), 400)
@@ -66,7 +70,7 @@ export function Component() {
             itemName='courses'
             columns={tableColumnsCourses}
             data={allCourses}
-            filterPossibleOptions={allSubjects}
+            filterPossibleOptions={allDepartments}
 
             recentlyUpdatedItem={recentlyUpdatedItem}
             setRecentlyUpdatedItem={setRecentlyUpdatedItem}
@@ -93,8 +97,11 @@ export function Component() {
             setSortingOrderby={setSortingOrderby}
             sortingTextsearch={sortingTextsearch}
             setSortingTextsearch={setSortingTextsearch}
-            selectedFilterOptions={selectedSubjects}
-            setSelectedFilterOptions={setSelectedSubjects}
+            selectedFilterOptions={selectedOptions}
+            setSelectedFilterOptions={setSelectedOptions}
+
+            nextPageNavigate={nextPageNavigate}
+            previousPageNavigate={previousPageNavigate}
         />
     )
 }

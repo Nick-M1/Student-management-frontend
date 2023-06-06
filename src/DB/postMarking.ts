@@ -1,5 +1,6 @@
-export default async function postMarking(courseId: number, score: string, studentId: number | string) {
+export default async function postMarking(courseId: number, title: string, score: string, studentId: number | string) {
     const newMarking = {
+        title,
         score,
 
         course: {

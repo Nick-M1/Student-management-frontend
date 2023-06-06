@@ -1,34 +1,27 @@
-import {NUMBER_OF_ITEMS_PER_PAGE} from "../../constants/table-constants";
-import {useMemo} from "react";
-
 type Props = {
-    totalNumberOfItems: number
-    numberOfItemsFound: number
+    numberOfElements: number
+    offset: number
+    totalElements: number
 
-    pagenumber: number
+    first: boolean
+    last: boolean
     nextPage: () => void
     prevPage: () => void
 }
 
-export default function PaginationButtons({ totalNumberOfItems, numberOfItemsFound, pagenumber, nextPage, prevPage }: Props) {
-    const firstItemIndexOnPage = useMemo(() => pagenumber * NUMBER_OF_ITEMS_PER_PAGE, [pagenumber])
-    const lastItemIndexOnPage = useMemo(() => firstItemIndexOnPage + numberOfItemsFound, [firstItemIndexOnPage, numberOfItemsFound])
-
-    const disablePrevPageNav = firstItemIndexOnPage === 0
-    const disableNextPageNav = lastItemIndexOnPage === totalNumberOfItems
-
+export default function PaginationButtons({ numberOfElements, offset, totalElements, first, last, nextPage, prevPage }: Props) {
     return (
         <div className='flex space-x-2'>
             <p>
-                Showing <b>{ firstItemIndexOnPage + 1 }</b> to <b>{ lastItemIndexOnPage }</b> of { totalNumberOfItems } results
+                Showing <b>{ totalElements === 0 ? 0 : offset + 1 }</b> to <b>{ offset + numberOfElements }</b> of { totalElements } results
             </p>
             <div className='flex-grow'/>
 
-            <button onClick={prevPage} disabled={disablePrevPageNav} className={`btn-secondary text-sm ${disablePrevPageNav && 'cursor-not-allowed'}`}>
+            <button onClick={prevPage} disabled={first} className={`btn-secondary text-sm ${first && 'cursor-not-allowed'}`}>
                 Previous
             </button>
 
-            <button onClick={nextPage} disabled={disableNextPageNav} className={`btn-secondary text-sm ${disableNextPageNav && 'cursor-not-allowed'}`}>
+            <button onClick={nextPage} disabled={last} className={`btn-secondary text-sm ${last && 'cursor-not-allowed'}`}>
                 Next
             </button>
         </div>

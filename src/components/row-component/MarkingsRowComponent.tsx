@@ -16,6 +16,9 @@ export default function MarkingsRowComponent(item: Marking) {
             <td className="px-6 py-4">
                 { item.course.code }: <span className='capitalize italic'>{ item.course.title }</span>
             </td>
+            <td className="px-6 py-4 capitalize">
+                {item.title}
+            </td>
             <td className="px-6 py-4">
                 {item.score}
             </td>

@@ -1,6 +1,6 @@
-export default async function postCourse(code: string, title: string) {
+export default async function postCourse(code: string, title: string, department: string) {
     const newCourse = {
-        code, title
+        code, title, department
     }
 
     return await fetch(

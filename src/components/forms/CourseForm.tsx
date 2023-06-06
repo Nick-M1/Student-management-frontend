@@ -11,6 +11,9 @@ import postMarking from "../../DB/postMarking";
 import putMarking from "../../DB/putMarking";
 import postCourse from "../../DB/postCourse";
 import putCourse from "../../DB/putCourse";
+import DropdownCustom from "../headlessui/DropdownCustom";
+import {ALL_YEARGROUPS} from "../../constants/yeargroup-enum";
+import {capitalise} from "../../utils/textUtils";
 
 type Props = {
     open: boolean,
@@ -31,6 +34,7 @@ export default function CourseForm({
 }: Props) {
 
     const isEdit = itemToEdit != null
+    const [selectedDepartment, setSelectedDepartment] = useState<string>(getAllPossibleSubjects()[0])
 
     async function courseFormHandler(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -39,8 +43,8 @@ export default function CourseForm({
         const title: string = e.currentTarget.title_input.value
 
         const response = isEdit
-            ? await putCourse(itemToEdit.id, code, title)
-            : await postCourse(code, title)
+            ? await putCourse(itemToEdit.id, code, title, selectedDepartment)
+            : await postCourse(code, title, selectedDepartment)
 
 
         if (response.ok) {
@@ -55,6 +59,10 @@ export default function CourseForm({
     return (
         <PopupLargeCustom open={open} setOpen={setClose} title={`${isEdit ? 'Edit' : 'Add new'} ${itemName} 👨🏻‍🎓`}>
             <form onSubmit={courseFormHandler} className='space-y-5 py-4'>
+                <div className=''>
+                    <label htmlFor='department_input' className='leading-6 font-medium text-gray-900'> Department </label>
+                    <DropdownCustom options={getAllPossibleSubjects()} selected={selectedDepartment} setSelected={setSelectedDepartment} displayOption={(option) => typeof option === 'undefined' ? '' : capitalise(option)}/>
+                </div>
                 <div>
                     <label htmlFor='code_input' className='leading-6 font-medium text-gray-900'> Code </label>
                     <input
@@ -76,6 +84,7 @@ export default function CourseForm({
                         defaultValue={itemToEdit?.title}
                     />
                 </div>
+
 
                 <button type='submit' className='btn-primary'>ADD</button>
             </form>

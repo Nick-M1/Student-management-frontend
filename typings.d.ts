@@ -5,8 +5,8 @@ type Student = {
     image: string,
     dob: string,
     age: number
+    yeargroup: import('src/constants/yeargroup-enum').YeargroupEnum
     subjects: string[]
-    // year: string
 };
 
 type StudentRequest = {
@@ -14,8 +14,8 @@ type StudentRequest = {
     email: string,
     image: string,
     dob: string,
+    yeargroup: number | string
     subjects: string[]
-    // year: string
 };
 
 type TableColumn = {
@@ -26,18 +26,32 @@ type TableColumn = {
 type Marking = {
     id: number,
     course: Course,
+    title: string,
     score: number
 }
 
-type MarkingResponse = {
-    markings: Marking[]
-    mean: {
-        [key: string]: number
-    }
-}
+type MarkingStatistics = [string, number][]
 
 type Course = {
     id: number
     code: string
     title: string
+    department: string
+}
+
+type Pageable<T> = {
+    content: T[]
+    first: boolean
+    last: boolean
+
+    number: number
+    numberOfElements: number
+
+    pageable: {
+        offset: number
+        pageNumber: number
+    }
+
+    totalElements: number
+    totalPages: number
 }
