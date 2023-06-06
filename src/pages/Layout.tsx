@@ -19,16 +19,20 @@ export default function Layout() {
     return (
         <div className='font-montserrat scrollbar min-h-screen bg-gray-100 text-gray-900 py-6 px-4 sm:px-6 lg:px-32'>
             <Toaster/>
-            <div className="mx-auto text-3xl font-bold flex tracking-wide">
-                <Link to='/'>
-                    <img src={LOGO_PNG} className='w-20 h-20 mr-3' alt='logo' title='Student Management System'/>
-                </Link>
-                Student Management <br/> System
-
-                <div className='flex-grow'/>
-                <NavLink to='/courses' className={({isActive}) => `text-lg flex items-start smooth-transition ${isActive ? 'text-blue-500' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
-                    Courses <ArrowRightIcon className='w-5 mt-1 ml-2'/>
+            <div className="mx-auto text-lg sm:text-3xl font-bold flex justify-between tracking-wide">
+                <NavLink to='/' className={({isActive}) => `flex-shrink-0 flex smooth-transition ${isActive ? 'text-blue-600' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
+                    <img src={LOGO_PNG} className='w-14 h-14 sm:w-20 sm:h-20 mr-3' alt='logo' title='Student Management System'/>
+                    Student <br/> Management
                 </NavLink>
+
+                <div className='flex flex-col items-end space-y-1'>
+                    <NavLink to='/students' className={({isActive}) => `sm:text-lg flex items-start smooth-transition ${isActive ? 'text-blue-500' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
+                        Students <ArrowRightIcon className='w-5 mt-1 ml-2'/>
+                    </NavLink>
+                    <NavLink to='/courses' className={({isActive}) => `sm:text-lg flex items-start smooth-transition ${isActive ? 'text-blue-500' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
+                        Courses <ArrowRightIcon className='w-5 mt-1 ml-2'/>
+                    </NavLink>
+                </div>
             </div>
 
             <Breadcrumb breadcrumbs={breadcrumbs}/>
