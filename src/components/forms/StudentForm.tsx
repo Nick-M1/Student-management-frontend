@@ -18,6 +18,8 @@ type Props = {
     itemToEdit: Student | null,
     setItemToEdit: (item: Student | null) => void,
     setRecentlyUpdatedItem: (index: number) => void,
+
+    jwtToken: string
 }
 
 export default function StudentForm({
@@ -26,7 +28,8 @@ export default function StudentForm({
    itemName,
    itemToEdit,
    setItemToEdit,
-   setRecentlyUpdatedItem
+   setRecentlyUpdatedItem,
+   jwtToken
 }: Props) {
 
     const isEdit = itemToEdit != null
@@ -74,6 +77,7 @@ export default function StudentForm({
             {
                 method: 'POST',
                 headers: {
+                    Authorization: `Bearer ${jwtToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify( studentRequest ),
@@ -99,6 +103,7 @@ export default function StudentForm({
             {
                 method: 'PUT',
                 headers: {
+                    Authorization: `Bearer ${jwtToken}`,
                     'Content-Type': 'application/json',
                 },
             }

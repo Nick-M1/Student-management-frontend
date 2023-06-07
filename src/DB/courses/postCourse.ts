@@ -1,4 +1,4 @@
-export default async function postCourse(code: string, title: string, department: string) {
+export default async function postCourse(jwtToken: string, code: string, title: string, department: string) {
     const newCourse = {
         code, title, department
     }
@@ -8,6 +8,7 @@ export default async function postCourse(code: string, title: string, department
         {
             method: 'POST',
             headers: {
+                Authorization: `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(newCourse),

@@ -1,4 +1,4 @@
-export default async function postMarking(courseId: number, title: string, score: string, studentId: number | string) {
+export default async function postMarking(jwtToken: string, courseId: number, title: string, score: string, studentId: number | string) {
     const newMarking = {
         title,
         score,
@@ -17,6 +17,7 @@ export default async function postMarking(courseId: number, title: string, score
         {
             method: 'POST',
             headers: {
+                Authorization: `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(newMarking),

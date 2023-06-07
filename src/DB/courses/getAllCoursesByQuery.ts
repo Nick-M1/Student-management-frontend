@@ -1,4 +1,7 @@
+import {redirect} from "react-router-dom";
+
 export default async function getAllCoursesByQuery(
+    jwtToken: string,
     sortingAcs: boolean,
     sortingOrderby: string,
     sortingTextsearch: string,
@@ -15,9 +18,17 @@ export default async function getAllCoursesByQuery(
 
     selectedDeparments.forEach(i => urlParams.append('departments', i));
 
-    return await fetch(`http://localhost:8080/api/v1/courses?${urlParams}`)
-        .then(
-            r => r.json(),
-            () => []
-        )
+    return await fetch(`http://localhost:8080/api/v1/courses?${urlParams}`, {
+        headers: {
+            Authorization: `Bearer ${jwtToken}`
+        }
+
+    }).then(
+        res => {
+            if (res.status === 401)
+                throw redirect("/signin")
+            return res.json()
+        },
+        () => []
+    )
 }

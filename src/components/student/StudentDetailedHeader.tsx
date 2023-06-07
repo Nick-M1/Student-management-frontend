@@ -6,9 +6,10 @@ import ColoredListDisplay from "../shared/ColoredListDisplay";
 type Props = {
     student: Student
     means: MarkingStatistics
+    jwtToken: string
 }
 
-export default function StudentDetailedHeader({ student, means }: Props) {
+export default function StudentDetailedHeader({ student, means, jwtToken }: Props) {
     const [studentFormPopup, setStudentFormPopup] = useState(false)
     const closeStudentFormPopup = () => setStudentFormPopup(false)
     const openStudentFormPopup = () => setStudentFormPopup(true)
@@ -56,6 +57,7 @@ export default function StudentDetailedHeader({ student, means }: Props) {
                 itemToEdit={student}
                 setItemToEdit={() => {}}
                 setRecentlyUpdatedItem={() => { navigate(0) }}
+                jwtToken={jwtToken}
             />
         </>
     )

@@ -7,10 +7,10 @@ import SubjectSelector from "../headlessui/SubjectSelector";
 import getAllPossibleSubjects from "../../DB/getAllPossibleSubjects";
 import {DEFAULT_PROFILE_IMAGE} from "../../constants/assets-constants";
 import PopupLargeCustom from "../headlessui/PopupLargeCustom";
-import postMarking from "../../DB/postMarking";
-import putMarking from "../../DB/putMarking";
-import postCourse from "../../DB/postCourse";
-import putCourse from "../../DB/putCourse";
+import postMarking from "../../DB/markings/postMarking";
+import putMarking from "../../DB/markings/putMarking";
+import postCourse from "../../DB/courses/postCourse";
+import putCourse from "../../DB/courses/putCourse";
 import DropdownCustom from "../headlessui/DropdownCustom";
 import {ALL_YEARGROUPS} from "../../constants/yeargroup-enum";
 import {capitalise} from "../../utils/textUtils";
@@ -22,6 +22,7 @@ type Props = {
     itemToEdit: Course | null,
     setItemToEdit: (item: Course | null) => void,
     setRecentlyUpdatedItem: (index: number) => void,
+    jwtToken: string
 }
 
 export default function CourseForm({
@@ -30,7 +31,8 @@ export default function CourseForm({
     itemName,
     itemToEdit,
     setItemToEdit,
-    setRecentlyUpdatedItem
+    setRecentlyUpdatedItem,
+    jwtToken
 }: Props) {
 
     const isEdit = itemToEdit != null
@@ -43,8 +45,8 @@ export default function CourseForm({
         const title: string = e.currentTarget.title_input.value
 
         const response = isEdit
-            ? await putCourse(itemToEdit.id, code, title, selectedDepartment)
-            : await postCourse(code, title, selectedDepartment)
+            ? await putCourse(jwtToken, itemToEdit.id, code, title, selectedDepartment)
+            : await postCourse(jwtToken, code, title, selectedDepartment)
 
 
         if (response.ok) {

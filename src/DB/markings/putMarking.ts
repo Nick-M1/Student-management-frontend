@@ -1,4 +1,4 @@
-export default async function putMarking(markingId: number, title: string, score: string) {
+export default async function putMarking(jwtToken: string, markingId: number, title: string, score: string) {
     const urlSearchParams = new URLSearchParams({
         title, score
     });
@@ -8,6 +8,7 @@ export default async function putMarking(markingId: number, title: string, score
         {
             method: 'PUT',
             headers: {
+                Authorization: `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json',
             },
         }

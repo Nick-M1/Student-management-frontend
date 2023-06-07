@@ -2,7 +2,7 @@ import {Dispatch, ReactNode, SetStateAction, useCallback, useMemo, useState} fro
 import Searchbar from "../shared/Searchbar";
 import SubjectSelector from "../headlessui/SubjectSelector";
 import TableCustom from "./TableCustom";
-import deleteStudent from "../../DB/deleteStudent";
+import deleteStudent from "../../DB/students/deleteStudent";
 import StudentForm from "../forms/StudentForm";
 import {HasId} from "../../interfaces";
 import PopupLargeCustom from "../headlessui/PopupLargeCustom";

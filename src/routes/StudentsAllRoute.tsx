@@ -1,31 +1,34 @@
 import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react'
-import getAllStudentsByQuery from "../DB/getAllStudentsByQuery";
+import getAllStudentsByQuery from "../DB/students/getAllStudentsByQuery";
 import getAllSubjects from "../DB/getAllSubjects";
 import TablePage from "../components/generic-components/TablePage";
 import StudentForm from "../components/forms/StudentForm";
 import StudentsAllRowComponent from "../components/row-component/StudentsAllRowComponent";
-import deleteStudent from "../DB/deleteStudent";
+import deleteStudent from "../DB/students/deleteStudent";
 import {tableColumnsStudentsAll} from "../constants/table-columns-students-all";
-import getAllCourses from "../DB/getAllCoursesByQuery";
+import getAllCourses from "../DB/courses/getAllCoursesByQuery";
 import {useLoaderData} from "react-router-dom";
 import usePopupForm from "../hooks/usePopupForm";
 import CourseForm from "../components/forms/CourseForm";
 import usePagination from "../hooks/usePagination";
-import getCountStudentsByQuery from "../DB/getCountStudentsByQuery";
+import getCountStudentsByQuery from "../DB/students/getCountStudentsByQuery";
 import {defaultQueryParams} from "../constants/default-query-params";
+import {getJwtTokenOrThrow} from "../utils/authentication";
 
 
 
 
 export async function loader() {
-    const subjectsLoader = await getAllSubjects()
-    const studentsLoader = await getAllStudentsByQuery(defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, subjectsLoader)
+    const { jwtToken, role} = getJwtTokenOrThrow()
 
-    return { studentsLoader, subjectsLoader }
+    const subjectsLoader = await getAllSubjects(jwtToken)
+    const studentsLoader = await getAllStudentsByQuery(jwtToken, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, subjectsLoader)
+
+    return { jwtToken, role, studentsLoader, subjectsLoader }
 }
 
 export function Component() {
-    const { studentsLoader, subjectsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { jwtToken, role, studentsLoader, subjectsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
     const [students, setStudents] = useState(studentsLoader)
@@ -53,7 +56,7 @@ export function Component() {
 
 
     useEffect(() => {
-        getAllStudentsByQuery(sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions)
+        getAllStudentsByQuery(jwtToken, sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions)
             .then(students => setStudents(students))
     }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions])
 
@@ -61,7 +64,7 @@ export function Component() {
         if (recentlyUpdatedItem === null)
             return
 
-        getAllSubjects()
+        getAllSubjects(jwtToken)
             .then(subjects => {
                 setAllSubjects(subjects)
                 setSelectedOptions(subjects)
@@ -92,6 +95,8 @@ export function Component() {
                     itemToEdit={popupFormItem}
                     setItemToEdit={setPopupFormItem}
                     setRecentlyUpdatedItem={setRecentlyUpdatedItem}
+
+                    jwtToken={jwtToken}
                 />
             }
             setPopupFormOpen={setPopupFormOpen}
@@ -99,7 +104,7 @@ export function Component() {
 
 
             displayRowGenerator={StudentsAllRowComponent}
-            onDelete={(item: Student) => deleteStudent(item)}
+            onDelete={(item: Student) => deleteStudent(jwtToken, item)}
 
             sortingAsc={sortingAsc}
             setSortingAsc={setSortingAsc}

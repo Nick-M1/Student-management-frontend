@@ -1,8 +1,8 @@
 import React, {FormEvent, useEffect, useState} from "react";
-import postMarking from "../../DB/postMarking";
-import putMarking from "../../DB/putMarking";
+import postMarking from "../../DB/markings/postMarking";
+import putMarking from "../../DB/markings/putMarking";
 import PopupLargeCustom from "../headlessui/PopupLargeCustom";
-import getAllCourses from "../../DB/getAllCourses";
+import getAllCourses from "../../DB/courses/getAllCourses";
 import DropdownCustom from "../headlessui/DropdownCustom";
 import {capitalise} from "../../utils/textUtils";
 
@@ -15,6 +15,7 @@ type Props = {
     setItemToEdit: (item: Marking | null) => void,
     setRecentlyUpdatedItem: (index: number) => void,
 
+    jwtToken: string
     studentId: number
 }
 
@@ -25,13 +26,14 @@ export default function MarkingForm({
     itemToEdit,
     setItemToEdit,
     setRecentlyUpdatedItem,
+    jwtToken,
     studentId,
 }: Props) {
 
     const [courses, setCourses] = useState<Course[]>([])
     const [selectedCourse, setSelectedCourse] = useState<Course | undefined>(undefined)
     useEffect(() => {
-        getAllCourses().then(courses => {
+        getAllCourses(jwtToken).then(courses => {
             setCourses(courses)
         })
     },[])
@@ -47,8 +49,8 @@ export default function MarkingForm({
         const score: string = e.currentTarget.score_input.value
 
         const response = isEdit
-            ? await putMarking(itemToEdit.id, title, score)
-            : await postMarking(selectedCourse!.id, title, score, studentId)
+            ? await putMarking(jwtToken, itemToEdit.id, title, score)
+            : await postMarking(jwtToken, selectedCourse!.id, title, score, studentId)
 
 
         if (response.ok) {

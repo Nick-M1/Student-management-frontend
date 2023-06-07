@@ -1,13 +1,34 @@
 import "@fontsource/montserrat";
 
-import {Link, NavLink, Outlet, useLocation, useParams} from "react-router-dom";
+import {
+    Link,
+    Navigate,
+    NavLink,
+    Outlet,
+    redirect,
+    useLoaderData,
+    useLocation,
+    useNavigate,
+    useParams
+} from "react-router-dom";
 import {Toaster} from "react-hot-toast";
 import React from "react";
 import {LOGO_PNG} from "../constants/assets-constants";
 import ArrowRightIcon from "../icons/ArrowRightIcon";
 import Breadcrumb from "../components/shared/Breadcrumb";
+import {getJwtTokenOrThrow, removeJwtToken} from "../utils/authentication";
+import ArrowRightOnRectangle from "../icons/ArrowRightOnRectangle";
 
-export default function Layout() {
+export function layoutHeaderLoader() {
+    return getJwtTokenOrThrow()
+}
+
+export function LayoutHeader() {
+    const { jwtToken, role, userId } = useLoaderData() as ReturnType<typeof layoutHeaderLoader>
+    const isStudent = role === 'STUDENT'
+
+    const navigate = useNavigate()
+
     const path = useLocation().pathname.split('/').slice(1)
     const breadcrumbs = path.map((p, index) => {
         return {
@@ -15,6 +36,11 @@ export default function Layout() {
             link: `/${path.slice(0, index + 1).join('/')}`,
         }
     })
+
+    const onSignOut = () => {
+        removeJwtToken()
+        navigate("/signin")
+    }
 
     return (
         <div className='font-montserrat scrollbar min-h-screen bg-gray-100 text-gray-900 py-6 px-4 sm:px-6 lg:px-32'>
@@ -26,12 +52,15 @@ export default function Layout() {
                 </NavLink>
 
                 <div className='flex flex-col items-end space-y-1'>
-                    <NavLink to='/students' className={({isActive}) => `sm:text-lg flex items-start smooth-transition ${isActive ? 'text-blue-500' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
-                        Students <ArrowRightIcon className='w-5 mt-1 ml-2'/>
+                    <NavLink to={isStudent ? `/students/${userId}` : '/students' } className={({isActive}) => `sm:text-lg flex items-start smooth-transition ${isActive ? 'text-blue-500' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
+                        { isStudent ? 'Your Profile' : 'Students' } <ArrowRightIcon className='w-5 mt-1 ml-2'/>
                     </NavLink>
                     <NavLink to='/courses' className={({isActive}) => `sm:text-lg flex items-start smooth-transition ${isActive ? 'text-blue-500' : 'text-black hover:text-blue-600 active:text-blue-400'}`}>
                         Courses <ArrowRightIcon className='w-5 mt-1 ml-2'/>
                     </NavLink>
+                    <button onClick={onSignOut} className='sm:text-lg flex items-start hover:text-red-600 active:text-red-400 smooth-transition'>
+                        Sign Out <ArrowRightOnRectangle className='w-5 mt-1 ml-2'/>
+                    </button>
                 </div>
             </div>
 

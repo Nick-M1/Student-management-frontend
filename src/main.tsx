@@ -2,17 +2,21 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
-import Layout from "./pages/Layout";
+import {LayoutHeader, layoutHeaderLoader} from "./layout/LayoutHeader";
 import ErrorPage from "./pages/ErrorPage";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <Route element={<Layout/>} errorElement={<ErrorPage/>}>
-            <Route index lazy={() => import("./routes/HomeRoute")} />
-            <Route path='/courses' lazy={() => import('./routes/CoursesRoute')}/>
+        <Route errorElement={<ErrorPage/>}>
+            <Route path='/signin' lazy={() => import('./routes/SigninRoute')}/>
 
-            <Route path='/students' lazy={() => import("./routes/StudentsAllRoute")} />
-            <Route path='/students/:studentId' lazy={() => import("./routes/StudentDetailedRoute")} />
+            <Route element={<LayoutHeader/>} loader={layoutHeaderLoader}>
+                <Route index lazy={() => import("./routes/HomeRoute")} />
+                <Route path='/courses' lazy={() => import('./routes/CoursesRoute')}/>
+
+                <Route path='/students' lazy={() => import("./routes/StudentsAllRoute")} />
+                <Route path='/students/:studentId' lazy={() => import("./routes/StudentDetailedRoute")} />
+            </Route>
         </Route>
     )
 )

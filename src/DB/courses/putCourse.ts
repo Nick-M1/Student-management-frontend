@@ -1,4 +1,4 @@
-export default async function putCourse(courseId: number, code: string, title: string, department: string) {
+export default async function putCourse(jwtToken: string, courseId: number, code: string, title: string, department: string) {
     const urlSearchParams = new URLSearchParams({
         code, title, department
     });
@@ -8,6 +8,7 @@ export default async function putCourse(courseId: number, code: string, title: s
         {
             method: 'PUT',
             headers: {
+                Authorization: `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json',
             },
         }

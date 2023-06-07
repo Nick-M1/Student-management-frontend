@@ -1,8 +1,8 @@
 import {useLoaderData} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import TablePage from "../components/generic-components/TablePage";
-import getAllCourses from "../DB/getAllCoursesByQuery";
-import deleteCourse from "../DB/deleteCourse";
+import getAllCourses from "../DB/courses/getAllCoursesByQuery";
+import deleteCourse from "../DB/courses/deleteCourse";
 import CoursesRowComponent from "../components/row-component/CoursesRowComponent";
 import CourseForm from "../components/forms/CourseForm";
 import {tableColumnsCourses} from "../constants/table-columns-courses";
@@ -10,18 +10,21 @@ import usePopupForm from "../hooks/usePopupForm";
 import {defaultQueryParams} from "../constants/default-query-params";
 import usePagination from "../hooks/usePagination";
 import getAllDepartments from "../DB/getAllDepartments";
-import getAllCoursesByQuery from "../DB/getAllCoursesByQuery";
+import getAllCoursesByQuery from "../DB/courses/getAllCoursesByQuery";
+import {getJwtTokenOrThrow} from "../utils/authentication";
 
 export async function loader() {
-    const departmentsLoader = await getAllDepartments()
-    const coursesLoader = await getAllCoursesByQuery(defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, departmentsLoader)
+    const { jwtToken, role} = getJwtTokenOrThrow()
 
-    return { departmentsLoader, coursesLoader }
+    const departmentsLoader = await getAllDepartments(jwtToken)
+    const coursesLoader = await getAllCoursesByQuery(jwtToken, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, departmentsLoader)
+
+    return { jwtToken, role, departmentsLoader, coursesLoader }
 }
 
 
 export function Component() {
-    const { departmentsLoader, coursesLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { jwtToken, role, departmentsLoader, coursesLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
     const [allCourses, setAllCourses] = useState(coursesLoader)
@@ -48,7 +51,7 @@ export function Component() {
     ] = usePopupForm<Course>()
 
     useEffect(() => {
-        getAllCourses(sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions)
+        getAllCourses(jwtToken, sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions)
             .then(courses => setAllCourses(courses))
     }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions])
 
@@ -56,7 +59,7 @@ export function Component() {
         if (recentlyUpdatedItem === null)
             return
 
-        getAllDepartments()
+        getAllDepartments(jwtToken)
             .then(departments => {
                 setAllDepartments(departments)
                 setSelectedOptions(departments)
@@ -83,13 +86,15 @@ export function Component() {
                     itemToEdit={popupFormItem}
                     setItemToEdit={setPopupFormItem}
                     setRecentlyUpdatedItem={setRecentlyUpdatedItem}
+
+                    jwtToken={jwtToken}
                 />
             }
             setPopupFormOpen={setPopupFormOpen}
             setPopupFormItem={setPopupFormItem}
 
             displayRowGenerator={CoursesRowComponent}
-            onDelete={(item: Course) => deleteCourse(item)}
+            onDelete={(item: Course) => deleteCourse(jwtToken, item)}
 
             sortingAsc={sortingAsc}
             setSortingAsc={setSortingAsc}

@@ -5,34 +5,36 @@ import TablePage from "../components/generic-components/TablePage";
 import {tableColumnsCourses} from "../constants/table-columns-courses";
 import CourseForm from "../components/forms/CourseForm";
 import CoursesRowComponent from "../components/row-component/CoursesRowComponent";
-import deleteCourse from "../DB/deleteCourse";
-import getStudentById from "../DB/getStudentById";
-import getMarkingPage from "../DB/getMarkingPage";
+import deleteCourse from "../DB/courses/deleteCourse";
+import getStudentById from "../DB/students/getStudentById";
+import getMarkingPage from "../DB/markings/getMarkingPage";
 import MarkingForm from "../components/forms/MarkingForm";
 import MarkingsRowComponent from "../components/row-component/MarkingsRowComponent";
-import deleteMarking from "../DB/deleteMarking";
+import deleteMarking from "../DB/markings/deleteMarking";
 import StudentDetailedHeader from "../components/student/StudentDetailedHeader";
 import {tableColumnsStudentDetailed} from "../constants/table-columns-student-detailed";
 import usePopupForm from "../hooks/usePopupForm";
 import {defaultQueryParams} from "../constants/default-query-params";
 import usePagination from "../hooks/usePagination";
-import getMarkingStatistics from "../DB/getMarkingStatistics";
+import getMarkingStatistics from "../DB/markings/getMarkingStatistics";
+import {getJwtTokenOrThrow} from "../utils/authentication";
 
 export async function loader({params}: { params: any }) {
     const { studentId } = params
+    const { jwtToken, role} = getJwtTokenOrThrow()
 
-    const studentLoader = await getStudentById(studentId)
-    const subjectsLoader = await getAllSubjects()
+    const studentLoader = await getStudentById(jwtToken, studentId)
+    const subjectsLoader = await getAllSubjects(jwtToken)
 
-    const markingsPageLoader = await getMarkingPage(studentId, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber)
-    const markingStatisticsLoader = await getMarkingStatistics(studentId)
+    const markingsPageLoader = await getMarkingPage(jwtToken, studentId, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber)
+    const markingStatisticsLoader = await getMarkingStatistics(jwtToken, studentId)
 
-    return { studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader }
+    return { jwtToken, role, studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader }
 }
 
 
 export function Component() {
-    const { studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { jwtToken, role, studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
     const [allMarkings, setAllMarkings] = useState(markingsPageLoader)
@@ -62,12 +64,12 @@ export function Component() {
 
 
     useEffect(() => {
-        getMarkingPage(studentLoader.id, sortingAsc, sortingOrderby, sortingTextsearch, pagenumber)
+        getMarkingPage(jwtToken, studentLoader.id, sortingAsc, sortingOrderby, sortingTextsearch, pagenumber)
             .then(markingsResponse => setAllMarkings(markingsResponse))
     }, [sortingAsc, sortingOrderby, sortingTextsearch, pagenumber, selectedOptions])
 
     useEffect(() => {
-        getMarkingStatistics(studentLoader.id)
+        getMarkingStatistics(jwtToken, studentLoader.id)
             .then(stats => setMarkingStatistics(stats))
     }, [recentlyUpdatedItem])
 
@@ -75,7 +77,7 @@ export function Component() {
         if (recentlyUpdatedItem === null)
             return
 
-        getAllSubjects()
+        getAllSubjects(jwtToken)
             .then(subjects => {
                 setAllSubjects(subjects)
                 setSelectedOptions(subjects)
@@ -89,6 +91,7 @@ export function Component() {
             <StudentDetailedHeader
                 student={studentLoader}
                 means={markingStatistics}
+                jwtToken={jwtToken}
             />
 
             <TablePage
@@ -109,6 +112,7 @@ export function Component() {
                         setItemToEdit={setPopupFormItem}
                         setRecentlyUpdatedItem={setRecentlyUpdatedItem}
 
+                        jwtToken={jwtToken}
                         studentId={studentLoader.id}
                     />
                 }
@@ -116,7 +120,7 @@ export function Component() {
                 setPopupFormItem={setPopupFormItem}
 
                 displayRowGenerator={MarkingsRowComponent}
-                onDelete={(item: Marking) => deleteMarking(item.id)}
+                onDelete={(item: Marking) => deleteMarking(jwtToken, item.id)}
 
                 sortingAsc={sortingAsc}
                 setSortingAsc={setSortingAsc}

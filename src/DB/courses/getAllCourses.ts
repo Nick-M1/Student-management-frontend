@@ -1,10 +1,11 @@
 import {redirect} from "react-router-dom";
 
-export default async function getAllSubjects(jwtToken: string): Promise<string[]> {
-    return await fetch('http://localhost:8080/api/v1/student/subjects', {
+export default async function getAllCourses(jwtToken: string): Promise<Course[]> {
+    return await fetch(`http://localhost:8080/api/v1/courses/all`, {
         headers: {
             Authorization: `Bearer ${jwtToken}`
         }
+
     }).then(
         res => {
             if (res.status === 401)
@@ -12,7 +13,5 @@ export default async function getAllSubjects(jwtToken: string): Promise<string[]
             return res.json()
         },
         () => []
-
     )
 }
-
