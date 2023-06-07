@@ -28,9 +28,11 @@ type Props<T> = {
     setSortingAsc: Dispatch<SetStateAction<boolean>>
     sortingOrderby: string
     setSortingOrderby: Dispatch<SetStateAction<string>>
+
+    isAdmin: boolean
 }
 
-export default function TableCustom<T extends HasId>({ itemName, columns, rowData, displaySingleRow, recentlyUpdatedItem, setRecentlyUpdatedItem, onEdit, onDelete, sortingAsc, setSortingAsc, sortingOrderby, setSortingOrderby }: Props<T>) {
+export default function TableCustom<T extends HasId>({ itemName, columns, rowData, displaySingleRow, recentlyUpdatedItem, setRecentlyUpdatedItem, onEdit, onDelete, sortingAsc, setSortingAsc, sortingOrderby, setSortingOrderby, isAdmin }: Props<T>) {
     const [deletePopupItem, setDeletePopupItem] = useState<T | null>(null)
     const closeDeletePopup = useCallback(() => setDeletePopupItem(null), [])
 
@@ -83,12 +85,17 @@ export default function TableCustom<T extends HasId>({ itemName, columns, rowDat
                                     </div>
                                 </th>
                             ))}
-                            <th scope="col" className="px-6 py-3">
-                                <span className="sr-only">Edit</span>
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                <span className="sr-only">Delete</span>
-                            </th>
+
+                            { isAdmin && (
+                                <>
+                                    <th scope="col" className="px-6 py-3">
+                                        <span className="sr-only">Edit</span>
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        <span className="sr-only">Delete</span>
+                                    </th>
+                                </>
+                            )}
                         </tr>
                     </thead>
 
@@ -97,24 +104,28 @@ export default function TableCustom<T extends HasId>({ itemName, columns, rowDat
                             <tr key={item.id} className={`group border-b smooth-transition ${recentlyUpdatedItem == item.id ? 'bg-cyan-50' : 'bg-white hover:bg-gray-50'}`} >
                                 { displaySingleRow(item) }
 
-                                <td className="px-6 py-4 text-right">
-                                    <button
-                                        type='button'
-                                        className="font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700 smooth-transition"
-                                        onClick={() => onEdit(item)}
-                                    >
-                                        Edit
-                                    </button>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button
-                                        type='button'
-                                        className="font-medium text-red-500 dark:text-blue-400 hover:text-red-700 smooth-transition"
-                                        onClick={() => setDeletePopupItem(item)}
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
+                                { isAdmin && (
+                                    <>
+                                        <td className="px-6 py-4 text-right">
+                                            <button
+                                                type='button'
+                                                className="font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700 smooth-transition"
+                                                onClick={() => onEdit(item)}
+                                            >
+                                                Edit
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button
+                                                type='button'
+                                                className="font-medium text-red-500 dark:text-blue-400 hover:text-red-700 smooth-transition"
+                                                onClick={() => setDeletePopupItem(item)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>

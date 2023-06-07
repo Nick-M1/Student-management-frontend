@@ -2,10 +2,6 @@ import {useLoaderData} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import getAllSubjects from "../DB/getAllSubjects";
 import TablePage from "../components/generic-components/TablePage";
-import {tableColumnsCourses} from "../constants/table-columns-courses";
-import CourseForm from "../components/forms/CourseForm";
-import CoursesRowComponent from "../components/row-component/CoursesRowComponent";
-import deleteCourse from "../DB/courses/deleteCourse";
 import getStudentById from "../DB/students/getStudentById";
 import getMarkingPage from "../DB/markings/getMarkingPage";
 import MarkingForm from "../components/forms/MarkingForm";
@@ -17,11 +13,12 @@ import usePopupForm from "../hooks/usePopupForm";
 import {defaultQueryParams} from "../constants/default-query-params";
 import usePagination from "../hooks/usePagination";
 import getMarkingStatistics from "../DB/markings/getMarkingStatistics";
-import {getJwtTokenOrThrow} from "../utils/authentication";
+import {getJwtTokenOrThrow, isAdminFunc} from "../utils/authentication";
 
 export async function loader({params}: { params: any }) {
     const { studentId } = params
     const { jwtToken, role} = getJwtTokenOrThrow()
+    const isAdmin = isAdminFunc(role)
 
     const studentLoader = await getStudentById(jwtToken, studentId)
     const subjectsLoader = await getAllSubjects(jwtToken)
@@ -29,12 +26,14 @@ export async function loader({params}: { params: any }) {
     const markingsPageLoader = await getMarkingPage(jwtToken, studentId, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber)
     const markingStatisticsLoader = await getMarkingStatistics(jwtToken, studentId)
 
-    return { jwtToken, role, studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader }
+    return { jwtToken, isAdmin, studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader }
 }
 
 
 export function Component() {
-    const { jwtToken, role, studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { jwtToken, isAdmin, studentLoader, subjectsLoader, markingsPageLoader, markingStatisticsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+
+
 
     // From DB
     const [allMarkings, setAllMarkings] = useState(markingsPageLoader)
@@ -92,6 +91,7 @@ export function Component() {
                 student={studentLoader}
                 means={markingStatistics}
                 jwtToken={jwtToken}
+                isAdmin={isAdmin}
             />
 
             <TablePage
@@ -133,6 +133,8 @@ export function Component() {
 
                 nextPageNavigate={nextPageNavigate}
                 previousPageNavigate={previousPageNavigate}
+
+                isAdmin={isAdmin}
             />
         </div>
     )

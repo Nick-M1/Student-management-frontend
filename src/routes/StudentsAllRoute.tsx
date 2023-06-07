@@ -7,28 +7,32 @@ import StudentsAllRowComponent from "../components/row-component/StudentsAllRowC
 import deleteStudent from "../DB/students/deleteStudent";
 import {tableColumnsStudentsAll} from "../constants/table-columns-students-all";
 import getAllCourses from "../DB/courses/getAllCoursesByQuery";
-import {useLoaderData} from "react-router-dom";
+import {redirect, useLoaderData} from "react-router-dom";
 import usePopupForm from "../hooks/usePopupForm";
 import CourseForm from "../components/forms/CourseForm";
 import usePagination from "../hooks/usePagination";
 import getCountStudentsByQuery from "../DB/students/getCountStudentsByQuery";
 import {defaultQueryParams} from "../constants/default-query-params";
-import {getJwtTokenOrThrow} from "../utils/authentication";
+import {getJwtTokenOrThrow, isAdminFunc} from "../utils/authentication";
 
 
 
 
 export async function loader() {
     const { jwtToken, role} = getJwtTokenOrThrow()
+    const isAdmin = isAdminFunc(role)
+
+    if (!isAdmin)
+        throw redirect('/')
 
     const subjectsLoader = await getAllSubjects(jwtToken)
     const studentsLoader = await getAllStudentsByQuery(jwtToken, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, subjectsLoader)
 
-    return { jwtToken, role, studentsLoader, subjectsLoader }
+    return { jwtToken, isAdmin, studentsLoader, subjectsLoader }
 }
 
 export function Component() {
-    const { jwtToken, role, studentsLoader, subjectsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { jwtToken, isAdmin, studentsLoader, subjectsLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
     // From DB
     const [students, setStudents] = useState(studentsLoader)
@@ -117,6 +121,8 @@ export function Component() {
 
             nextPageNavigate={nextPageNavigate}
             previousPageNavigate={previousPageNavigate}
+
+            isAdmin={isAdmin}
         />
     )
 }

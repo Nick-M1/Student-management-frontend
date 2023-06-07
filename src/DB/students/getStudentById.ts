@@ -9,6 +9,8 @@ export default async function getStudentById(jwtToken: string, studentId: string
         res => {
             if (res.status === 401)
                 throw redirect("/signin")
+            else if (res.status === 403)
+                throw redirect("/")
             else if (!res.ok)
                 throw new Error(`Student not found with id ${studentId}`)
 

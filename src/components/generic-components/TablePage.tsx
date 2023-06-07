@@ -39,12 +39,14 @@ type Props<T> = {
 
     nextPageNavigate: () => void
     previousPageNavigate: () => void
+
+    isAdmin: boolean
 }
 
 export default function TablePage<T extends HasId>({ itemName, columns, data, filterPossibleOptions, recentlyUpdatedItem, setRecentlyUpdatedItem,
                                                        PopupForm, setPopupFormOpen, setPopupFormItem, displayRowGenerator, onDelete, sortingAsc, setSortingAsc, sortingOrderby,
                                                        setSortingOrderby, sortingTextsearch, setSortingTextsearch, selectedFilterOptions, setSelectedFilterOptions,
-                                                       nextPageNavigate, previousPageNavigate }: Props<T>) {
+                                                       nextPageNavigate, previousPageNavigate, isAdmin }: Props<T>) {
 
 
     return (
@@ -54,18 +56,20 @@ export default function TablePage<T extends HasId>({ itemName, columns, data, fi
                     <div className='col-span-3'>
                         <Searchbar sortingTextsearch={sortingTextsearch} setSortingTextsearch={setSortingTextsearch}/>
                     </div>
-                    <div className='col-start-5'>
-                        <button
-                            type='button'
-                            onClick={() => {
-                                setPopupFormItem(null)
-                                setPopupFormOpen(true)
-                            }}
-                            className='btn-primary'
-                        >
-                            Add new { itemName }
-                        </button>
-                    </div>
+                    { isAdmin && (
+                        <div className='col-start-5'>
+                            <button
+                                type='button'
+                                onClick={() => {
+                                    setPopupFormItem(null)
+                                    setPopupFormOpen(true)
+                                }}
+                                className='btn-primary'
+                            >
+                                Add new { itemName }
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className='mt-7 block leading-6 text-gray-700 mb-3'>
@@ -93,6 +97,8 @@ export default function TablePage<T extends HasId>({ itemName, columns, data, fi
                         setSortingAsc={setSortingAsc}
                         sortingOrderby={sortingOrderby}
                         setSortingOrderby={setSortingOrderby}
+
+                        isAdmin={isAdmin}
                     />
                 </div>
 

@@ -7,9 +7,10 @@ type Props = {
     student: Student
     means: MarkingStatistics
     jwtToken: string
+    isAdmin: boolean
 }
 
-export default function StudentDetailedHeader({ student, means, jwtToken }: Props) {
+export default function StudentDetailedHeader({ student, means, jwtToken, isAdmin }: Props) {
     const [studentFormPopup, setStudentFormPopup] = useState(false)
     const closeStudentFormPopup = () => setStudentFormPopup(false)
     const openStudentFormPopup = () => setStudentFormPopup(true)
@@ -26,7 +27,9 @@ export default function StudentDetailedHeader({ student, means, jwtToken }: Prop
                     <h4 className='italic'>DOB: { student.dob } </h4>
                     <h4 className='italic text-gray-500'>Age: { student.age } </h4>
                 </div>
-                <button onClick={openStudentFormPopup} className='btn-primary ml-auto'>Update Student</button>
+                { isAdmin &&
+                    <button onClick={openStudentFormPopup} className='btn-primary ml-auto'>Update Student</button>
+                }
             </div>
 
             <div className='py-4 flex justify-between'>

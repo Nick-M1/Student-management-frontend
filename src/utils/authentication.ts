@@ -27,3 +27,7 @@ export function removeJwtToken() {
     localStorage.removeItem(JWT_ROLE_LOCALSTORAGEKEY)
     localStorage.removeItem(JWT_ID_LOCALSTORAGEKEY)
 }
+
+export function isAdminFunc(role: string) {
+    return role === "ADMIN"
+}

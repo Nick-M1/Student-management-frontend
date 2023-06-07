@@ -11,20 +11,22 @@ import {defaultQueryParams} from "../constants/default-query-params";
 import usePagination from "../hooks/usePagination";
 import getAllDepartments from "../DB/getAllDepartments";
 import getAllCoursesByQuery from "../DB/courses/getAllCoursesByQuery";
-import {getJwtTokenOrThrow} from "../utils/authentication";
+import {getJwtTokenOrThrow, isAdminFunc} from "../utils/authentication";
 
 export async function loader() {
     const { jwtToken, role} = getJwtTokenOrThrow()
+    const isAdmin = isAdminFunc(role)
 
     const departmentsLoader = await getAllDepartments(jwtToken)
     const coursesLoader = await getAllCoursesByQuery(jwtToken, defaultQueryParams.asc, defaultQueryParams.orderby, defaultQueryParams.textsearch, defaultQueryParams.pagenumber, departmentsLoader)
 
-    return { jwtToken, role, departmentsLoader, coursesLoader }
+    return { jwtToken, isAdmin, departmentsLoader, coursesLoader }
 }
 
 
 export function Component() {
-    const { jwtToken, role, departmentsLoader, coursesLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+    const { jwtToken, isAdmin, departmentsLoader, coursesLoader } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+
 
     // From DB
     const [allCourses, setAllCourses] = useState(coursesLoader)
@@ -107,6 +109,8 @@ export function Component() {
 
             nextPageNavigate={nextPageNavigate}
             previousPageNavigate={previousPageNavigate}
+
+            isAdmin={isAdmin}
         />
     )
 }
